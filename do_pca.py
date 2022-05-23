@@ -18,19 +18,28 @@ def PCA(cube, PCs = 6):
 	Perform PCA on a data cube. Returns two numpy arrays
 	of the same shape as the input cube. The first will
 	be the input cube with the first N PCs removed. The
-	second will be the input cube with the first N PCs 
+	second will be the input cube with the first N PCs
 	remaining and all others removed.
 	'''
 	num_orders, num_files, num_pixels = cube.shape
 	pca_data =  np.zeros(cube.shape)
 	pca_scale = np.zeros(cube.shape)
 	for order in range(num_orders):
-		u,s,vh = np.linalg.svd(cube[order,],full_matrices=False) #decompose
+
+		data = cube[order,] + 0.0
+		bad = np.where((np.isnan(cube[order,])==True) |
+					   (np.isfinite(cube[order,])==False))[0]
+		if len(bad) > 0:
+			rmv = np.where((np.isnan(cube[order,])==True) |
+						   (np.isfinite(cube[order,])==False))
+			data[rmv] = 0.0
+
+		u,s,vh = np.linalg.svd(data, full_matrices=False) #decompose
 		s1 = s.copy()
-		s1[PCs:] = 0. 
+		s1[PCs:] = 0.
 		W1 = np.diag(s1)
 		A1 = np.dot(u, np.dot(W1, vh)) #recompose
-		pca_scale[order,] = A1 
+		pca_scale[order,] = A1
 
 		s[0:PCs] = 0. #remove first N PCs
 		W = np.diag(s)
@@ -39,7 +48,7 @@ def PCA(cube, PCs = 6):
 		sig = np.std(A)
 		med = np.median(A)
 		loc = (A > 3. * sig+med)
-		A[loc] = 0. 
+		A[loc] = 0.
 		loc = (A < -3. * sig+med)
 		A[loc] = 0.
 		pca_data[order,] = A
@@ -53,7 +62,7 @@ def do_pca(wl_data,normalized,nPCAs,test_pca=True,plot=False,output=False,test_o
 	sub_pca_matrix=np.zeros((num_files,num_pixels,nPCAs))
 	if test_pca==True:
 		for numpcs in range(1,nPCAs+1):
-			pca_clean_data,pca_noplanet=PCA(normalized, numpcs) #working with normalized data
+			pca_clean_data, pca_noplanet=PCA(normalized, numpcs) #working with normalized data
 			sub_pca_matrix[:,:,numpcs-1]=pca_clean_data[test_order,:,:]
 			plt.figure()
 			plt.imshow(sub_pca_matrix[:,:,numpcs-1],extent=(1,num_files,np.min(wl_data[test_order,:]),np.max(wl_data[test_order,:])),aspect=1300)
@@ -92,8 +101,3 @@ def do_pca(wl_data,normalized,nPCAs,test_pca=True,plot=False,output=False,test_o
 		pickle.dump([wl_data,pca_noplanet],open('PCA_'+str(nPCAs)+'_noise.pic','wb'),protocol=2)
 
 	return wl_data,pca_clean_data,pca_noplanet
-
-
-
-
-
