@@ -1,5 +1,4 @@
 #Perform wavelength calibration
-
 import numpy as np
 import pickle
 from scipy import interpolate
@@ -15,7 +14,7 @@ def stretched(wl, shift, stretch):
 	'''
 	wl1=shift+wl*stretch
 	data_int=interpolate.splev(wl1,cs_data,der=0)
-	
+
 	return data_int
 
 
@@ -39,7 +38,8 @@ def correct(wl_arr, data_arr, skyorder, plot=False, output=False):
 			data_to_correct = data_to_correct/data_to_correct.max() #normalize
 			global cs_data
 			cs_data = interpolate.splrep(wl_raw, data_to_correct,s=0.0)
-			popt, pconv = curve_fit(stretched, wl_raw, rcontrol, p0=np.array([0,1.]))
+			popt, pconv = curve_fit(stretched, wl_raw, rcontrol,
+								    p0=np.array([0,1.]), maxfev=1000)
 			data_stretched = stretched(wl_raw, *popt)
 			data_corrected[order, frame,] = data_stretched #normalized
 
@@ -65,6 +65,3 @@ def correct(wl_arr, data_arr, skyorder, plot=False, output=False):
 		plt.show()
 
 	return wl_arr,data_corrected
-
-	
-
