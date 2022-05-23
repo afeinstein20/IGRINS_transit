@@ -81,6 +81,7 @@ def do_pca(wl_data,normalized,nPCAs,test_pca=True,plot=False,output=False,test_o
 		vmin=np.min((np.min(normalized),np.min(pca_clean_data)))
 		vmax=np.max((np.max(normalized),np.max(pca_clean_data)))
 		fig,(ax1,ax2,ax3)=plt.subplots(3,1,sharex=True,figsize=(7.5,8))
+		fig.set_facecolor('w')
 		ax1.imshow(normalized[test_order,:,:],extent=(1,num_files,np.min(wl_data[test_order,:]),np.max(wl_data[test_order,:])),aspect=1300)
 		ax1.set_title('Before PCA',fontsize=15)
 		ax1.tick_params(labelsize=20,axis="both",top=True,right=True,width=2,length=8,direction='in')
@@ -94,7 +95,7 @@ def do_pca(wl_data,normalized,nPCAs,test_pca=True,plot=False,output=False,test_o
 		fig.add_subplot(111, frame_on=False)
 		plt.tick_params(labelcolor='none',bottom=False,left=False)
 		plt.ylabel('Wavelength [$\mu$m]',fontsize=20)
-		plt.show()
+		plt.savefig('pca_test.png')
 
 	if output==True:
 		pickle.dump([wl_data,pca_clean_data],open('PCA_'+str(nPCAs)+'_clean_data.pic','wb'),protocol=2)
