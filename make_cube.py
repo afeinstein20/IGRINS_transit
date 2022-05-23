@@ -16,10 +16,16 @@ import matplotlib.pyplot as plt
 import pickle
 from matplotlib import rc
 
+def get_files(path, key, end_key):
+	filearr = np.sort(os.listdir(path))
+	filearr = np.sort([os.path.join(path, i) for i in filearr if
+						  i.endswith('{}.fits'.format(end_key)) and i.startswith(key)])
+	return filearr
+
 def make_cube(path,date,Tprimary_UT,Per,radeg,decdeg,skyorder,exptime,badorders,trimedges,plot=True,output=False,testorders=False):
 	#make list of observed files
-	filearr_specH=sorted(glob.glob(path+'*SDCH*spec.fits'))
-	filearr_specK=sorted(glob.glob(path+'*SDCK*spec.fits'))
+	filearr_specH = get_files(path, 'SDCH', 'spec')
+	filearr_specK = get_files(path, 'SDCK', 'spec')
 
 	#use one file to get shape
 	firstH=fits.open(filearr_specH[0])
@@ -80,7 +86,7 @@ def make_cube(path,date,Tprimary_UT,Per,radeg,decdeg,skyorder,exptime,badorders,
 
 	Vbary=np.zeros(len(time_start))
 	for i in range(len(time_start)):
-		barycorr = sc.radial_velocity_correction(obstime=Time(time_start[i],format='mjd'), location=gemini)  
+		barycorr = sc.radial_velocity_correction(obstime=Time(time_start[i],format='mjd'), location=gemini)
 		Vbary[i]=-barycorr.to(u.km/u.s).value
 
 	#Create output files
@@ -92,11 +98,12 @@ def make_cube(path,date,Tprimary_UT,Per,radeg,decdeg,skyorder,exptime,badorders,
 	print('Mean barycentric velocity during observation period is '+str("{:.3f}".format(np.mean(Vbary)))+' km/s')
 
 	#for plotting SNR
-
-	
-	filearr_snrH=sorted(glob.glob(path+'*SDCH*sn.fits'))
-	filearr_snrK=sorted(glob.glob(path+'*SDCK*sn.fits'))
+	filearr_snrH = get_files(path, 'SDCH', 'sn')
+	filearr_snrK = get_files(path, 'SDCK', 'sn')
+	#filearr_snrH=sorted(glob.glob(path+'*SDCH*sn.fits'))
+	#filearr_snrK=sorted(glob.glob(path+'*SDCK*sn.fits'))
 	snr_RAW=np.zeros((num_orders,num_files,num_pixels))
+
 	for i in range(len(filearr_snrH)):
 		hdu_list = fits.open(filearr_snrH[i])
 		image_snrH = hdu_list[0].data
@@ -161,8 +168,5 @@ def make_cube(path,date,Tprimary_UT,Per,radeg,decdeg,skyorder,exptime,badorders,
 	cdata=cdata[:,:,trimedges[0]:trimedges[1]]
 	cdata[np.isnan(cdata)]=0. #purging NaNs
 	cdata[cdata <0.]=0. #purging negative values
-	
+
 	return phi,Vbary,wlgrid,data_RAW,cwlgrid,cdata
-
-
-
