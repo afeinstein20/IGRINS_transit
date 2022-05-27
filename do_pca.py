@@ -1,5 +1,5 @@
 #FINDME: come up with better names for all the variables
-import pickle
+import pickle, os
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import interpolate
