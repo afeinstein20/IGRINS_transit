@@ -22,7 +22,8 @@ def get_files(path, key, end_key):
 						  i.endswith('{}.fits'.format(end_key)) and i.startswith(key)])
 	return filearr
 
-def make_cube(path,date,Tprimary_UT,Per,radeg,decdeg,skyorder,exptime,badorders,trimedges,plot=True,output=False,testorders=False):
+def make_cube(path,date,Tprimary_UT,Per,radeg,decdeg,skyorder,exptime,badorders,trimedges,
+			  plot=True,output=False,testorders=False, output_dir='.'):
 	#make list of observed files
 	filearr_specH = get_files(path, 'SDCH', 'spec')
 	filearr_specK = get_files(path, 'SDCK', 'spec')
@@ -91,9 +92,11 @@ def make_cube(path,date,Tprimary_UT,Per,radeg,decdeg,skyorder,exptime,badorders,
 
 	#Create output files
 	if output==True:
-		pickle.dump(phi,open('phi.pic','wb'),protocol=2)
-		pickle.dump(Vbary,open('Vbary.pic','wb'),protocol=2)
-		pickle.dump([wlgrid,data_RAW,skyorder],open('data_RAW_'+date+'.pic','wb'),protocol=2)
+		pickle.dump(phi,open(os.path.join(output_dir,'phi.pic'),'wb'),protocol=2)
+		pickle.dump(Vbary,open(os.path.join(output_dir,'Vbary.pic'),'wb'),protocol=2)
+		pickle.dump([wlgrid,data_RAW,skyorder],
+					open(os.path.join(output_dir,'data_RAW_'+date+'.pic'),'wb'),
+					protocol=2)
 
 	print('Mean barycentric velocity during observation period is '+str("{:.3f}".format(np.mean(Vbary)))+' km/s')
 

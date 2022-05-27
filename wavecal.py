@@ -1,6 +1,6 @@
 #Perform wavelength calibration
 import numpy as np
-import pickle
+import pickle, os
 from scipy import interpolate
 from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt
@@ -18,7 +18,7 @@ def stretched(wl, shift, stretch):
 	return data_int
 
 
-def correct(wl_arr, data_arr, skyorder, plot=False, output=False):
+def correct(wl_arr, data_arr, skyorder, plot=False, output=False, output_dir='.'):
 	'''
 	Perform wavelength calibration by shifting/stretching each frame to match the frame closest in time to the wavelength standard.
 	'''
@@ -44,7 +44,8 @@ def correct(wl_arr, data_arr, skyorder, plot=False, output=False):
 			data_corrected[order, frame,] = data_stretched #normalized
 
 	if output==True:
-		pickle.dump([wl_arr,data_corrected],open('wavelengthcalibrated.pic','wb'),protocol=2)
+		pickle.dump([wl_arr,data_corrected],
+					open(os.path.join(output_dir, 'wavelengthcalibrated.pic'),'wb'),protocol=2)
 
 	if plot==True:
 		plt.figure()

@@ -55,7 +55,8 @@ def PCA(cube, PCs = 6):
 
 	return pca_data, pca_scale
 
-def do_pca(wl_data,normalized,nPCAs,test_pca=True,plot=False,output=False,test_order=5):
+def do_pca(wl_data,normalized,nPCAs,test_pca=True,plot=False,
+		   output=False,test_order=5,output_dir='.'):
 	# wl_data,normalized=pickle.load(open(wavecal,'rb'))
 
 	num_orders,num_files,num_pixels=normalized.shape
@@ -98,7 +99,11 @@ def do_pca(wl_data,normalized,nPCAs,test_pca=True,plot=False,output=False,test_o
 		plt.savefig('pca_test.png')
 
 	if output==True:
-		pickle.dump([wl_data,pca_clean_data],open('PCA_'+str(nPCAs)+'_clean_data.pic','wb'),protocol=2)
-		pickle.dump([wl_data,pca_noplanet],open('PCA_'+str(nPCAs)+'_noise.pic','wb'),protocol=2)
+		pickle.dump([wl_data,pca_clean_data],
+					open(os.path.join(output_dir,'PCA_'+str(nPCAs)+'_clean_data.pic'),'wb'),
+					protocol=2)
+		pickle.dump([wl_data,pca_noplanet],
+					open(os.path.join(output_dir,'PCA_'+str(nPCAs)+'_noise.pic'),'wb'),
+					protocol=2)
 
 	return wl_data,pca_clean_data,pca_noplanet
