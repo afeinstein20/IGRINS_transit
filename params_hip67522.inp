@@ -1,0 +1,14 @@
+path,/Users/belugawhale/Documents/HIP67522_IGRINS/reduced
+model,HIP67522_CO_0.5.txt
+Kp,117.3748
+Kmag,8.164
+Dur,4.822
+Per,6.959503
+Vsini,54.2
+ra,13:50:06.24
+dec,-40:50:09.23
+outputfile,20220504
+Tprimary_UT,2022-05-04T02:59:06.00
+T14,4.822
+Vsys,7.41
+exptime,100
