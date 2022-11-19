@@ -1,14 +1,14 @@
 import os, sys
 import numpy as np
 
-def read_input():
+def read_input(filename):
     a = {}
 
-    with open('params.inp') as f:
+    with open(filename) as f:
         for line in f:
             (k,v) = line.split(',')
-            if k != 'model':
-                a[k] = float(v[:-2])
-            else:
+            try:
+                a[k] = np.float(v[:-1])
+            except:
                 a[k] = v[:-1]
     return a
