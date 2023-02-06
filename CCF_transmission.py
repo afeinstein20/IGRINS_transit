@@ -24,7 +24,8 @@ def get_rot_ker(vsini, wStar):
     return rker
 
 
-def log_likelihood_PCA(Vsys, Kp, scale, cs_p, wl_data, pca_clean_data,pca_noplanet,phi,Vbary,numPCs):
+def log_likelihood_PCA(Vsys, Kp, scale, cs_p, wl_data, pca_clean_data,
+                       pca_noplanet,phi,Vbary,numPCs):
 
     num_orders, num_files, num_pixels = pca_clean_data.shape
 
@@ -73,7 +74,8 @@ def log_likelihood_PCA(Vsys, Kp, scale, cs_p, wl_data, pca_clean_data,pca_noplan
 
 #################
 def run_CCF(wl_data,pca_clean_data,pca_noplanet,model,phi,Vbary,Kp,Vsys,scale,
-            numPCs,Per,T14,vsini,name='test',output=True,verbose=False, ax=None):
+            numPCs,Per,T14,vsini,name='test',output=True,verbose=False, ax=None,
+            model_co='0.2', Kparr_res=21, Vsys_res=11):
 
     #discard data taken outside of transit (doesn't contribute to planetary signal)
     print("Cropping out-of-transit data...")
@@ -87,8 +89,8 @@ def run_CCF(wl_data,pca_clean_data,pca_noplanet,model,phi,Vbary,Kp,Vsys,scale,
     num_orders, num_files, num_pixels = pca_clean_data.shape
 
     #set up array of Kp and Vsys values to perform cross-correlation at
-    Kparr=np.linspace(-10,350,11)
-    Vsysarr=np.linspace(-50,50,21)
+    Kparr=np.linspace(5,300,Kparr_res)
+    Vsysarr=np.linspace(-40,40,Vsys_res)
 
     logLarr=np.zeros((len(Kparr),len(Vsysarr)))
     CCFarr=np.zeros((len(Kparr),len(Vsysarr)))
@@ -124,8 +126,7 @@ def run_CCF(wl_data,pca_clean_data,pca_noplanet,model,phi,Vbary,Kp,Vsys,scale,
                                             Vbary,numPCs)
             logLarr[i,j]=logL_M
             CCFarr[i,j]=CCF1
-            # if verbose:
-            #     print(i, j, CCF1, logL_M)
+
 
     if output==True:
         pickle.dump([Vsysarr, Kparr,CCFarr,logLarr],open('PCA_'+name+'.pic','wb'))
@@ -139,34 +140,16 @@ def run_CCF(wl_data,pca_clean_data,pca_noplanet,model,phi,Vbary,Kp,Vsys,scale,
     if verbose:
         print("Maximum detection significance: "+str(sigmaarr.max())+". Maximum detection at Vsys="+str(Vsysarr[maxindices[1]])+", Kp="+str(Kparr[maxindices[0]]))
 
-    """
-    if ax is None:
-        fig,ax=plt.subplots()
-    cax=ax.imshow(CCFarr,origin='lower', extent=[Vsysarr.min(),Vsysarr.max(), Kparr.min(),Kparr.max()],aspect="auto",interpolation='none',zorder=0)
-    plt.scatter(Vsysarr[maxindices[1]],Kparr[maxindices[0]],s=80,color='k',marker='x',zorder=4)
-    cbar=plt.colorbar(cax)
-    plt.axvline(x=Vsys,color='white',ls='--',lw=2,zorder=1)
-    plt.axhline(y=Kp,color='white',ls='--',lw=2,zorder=1)
-    plt.xlabel('$\Delta$V$_{sys}$ [km/s]',fontsize=20)
-    plt.ylabel('K$_{p}$ [km/s]',fontsize=20)
-    cbar.set_label('Cross-correlation coefficient',fontsize=15)
-    cbar.ax.tick_params(labelsize=15,width=2,length=6)
-    plt.tick_params(labelsize=20,axis="both",top=True,right=True,width=2,length=8,direction='in')
-    plt.tight_layout()
-    plt.savefig('CCF'+name+'.pdf',fmt='pdf')
-    plt.show()
-    """
-
     if ax is None:
         fig,ax=plt.subplots()
 
     rc('axes',linewidth=2)
     cax=ax.imshow(sigmaarr,origin='lower', extent=[Vsysarr.min(),Vsysarr.max(),
                   Kparr.min(),Kparr.max()],aspect="auto",interpolation='none',
-                  zorder=0, vmin=0, vmax=2)
+                  zorder=0, vmin=0, vmax=4)
     ax.scatter(Vsysarr[maxindices[1]],Kparr[maxindices[0]],s=80,color='k',
                 marker='x',zorder=4)
-    #cbar=plt.colorbar(cax)
+    cbar=plt.colorbar(cax)
     ax.axvline(x=Vsys,color='white',ls='--',lw=2,zorder=1)
     ax.axhline(y=Kp,color='white',ls='--',lw=2,zorder=1)
     ax.set_xlabel('$\Delta$V$_{sys}$ [km/s]',fontsize=20)
@@ -176,7 +159,7 @@ def run_CCF(wl_data,pca_clean_data,pca_noplanet,model,phi,Vbary,Kp,Vsys,scale,
     plt.tick_params(labelsize=20,axis="both",top=True,right=True,width=2,
                     length=8,direction='in')
     #plt.tight_layout()
-    #plt.savefig('CCF_SNR'+name+'.pdf',fmt='pdf')
+    plt.savefig('CCF_SNR'+name+'_'+model_co+'.pdf',fmt='pdf')
     #plt.show()
 
     return CCFarr
