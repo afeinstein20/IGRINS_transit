@@ -76,7 +76,7 @@ def make_cube(path,date,Tprimary_UT,Per,radeg,decdeg,skyorder,exptime,badorders,
 	#calculating observed phases
 	print('Calculating observed phases...')
 	gemini = EarthLocation.from_geodetic(lat=-30.2407*u.deg, lon=-70.7366*u.deg, height=2722*u.m)
-	tprimary=Time(Tprimary_UT, format='isot', scale='tdb', location=gemini).mjd
+	tprimary=Time(Tprimary_UT, format='isot', scale='utc', location=gemini).mjd
 	phi=np.zeros(num_files)
 	for i in range(num_files):
 		phi[i]=(time_start[i]+.5*exptime/3600./24.-tprimary)/Per
@@ -172,4 +172,4 @@ def make_cube(path,date,Tprimary_UT,Per,radeg,decdeg,skyorder,exptime,badorders,
 	cdata[np.isnan(cdata)]=0. #purging NaNs
 	cdata[cdata <0.]=0. #purging negative values
 
-	return phi,Vbary,wlgrid,data_RAW,cwlgrid,cdata
+	return phi,Vbary,wlgrid,data_RAW,cwlgrid,cdata,time_start
